@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>回答一覧 | スカウト質問フォーム</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="page-shell page-shell--wide">
+      <section class="intro-panel results-panel">
+        <p class="eyebrow">Formspree Submissions</p>
+        <h1>回答一覧</h1>
+
+        <form class="showall-controls" id="showall-form">
+          <label for="form-id">Formspree form ID</label>
+          <input id="form-id" name="formId" value="xzdwyypw" autocomplete="off" required>
+
+          <label for="api-key">API key</label>
+          <input id="api-key" name="apiKey" type="password" autocomplete="off" required>
+
+          <button type="submit">一覧を読み込む</button>
+          <p class="message" id="showall-message" role="status" aria-live="polite"></p>
+        </form>
+
+        <nav class="question-tabs" id="question-tabs" aria-label="質問ごとの回答" hidden>
+          <button class="tab-button is-active" type="button" data-question-filter="all">すべて <span>0</span></button>
+          <button class="tab-button" type="button" data-question-filter="question-1">1 <span>0</span></button>
+          <button class="tab-button" type="button" data-question-filter="question-2">2 <span>0</span></button>
+          <button class="tab-button" type="button" data-question-filter="question-3">3 <span>0</span></button>
+          <button class="tab-button" type="button" data-question-filter="question-4">4 <span>0</span></button>
+          <button class="tab-button" type="button" data-question-filter="question-5">5 <span>0</span></button>
+        </nav>
+
+        <div class="summary-row" id="summary-row" hidden></div>
+        <div class="submission-list" id="submission-list"></div>
+      </section>
+    </main>
+    <script src="showall.js"></script>
+  </body>
+</html>
