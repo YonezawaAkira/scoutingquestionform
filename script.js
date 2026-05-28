@@ -1,4 +1,4 @@
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/your-form-id";
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/xzdwyypw";
 
 const form = document.querySelector(".question-card");
 
@@ -21,7 +21,6 @@ if (form) {
     const submission = {
       questionId,
       questionTitle,
-      name: String(formData.get("name") || "").trim(),
       answer,
       submittedAt: new Date().toISOString()
     };
