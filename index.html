@@ -1,20 +1,29 @@
 <!doctype html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <title>フォームテスト</title>
-</head>
-<body>
-  <h1>フォームテスト</h1>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>スカウト質問フォーム</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="intro-panel">
+        <p class="eyebrow">Scout Question Forms</p>
+        <h1>スカウト質問フォーム</h1>
+        <p>
+          5つの設問を、1問ずつ別ページで回答できます。
+          共有したいページのURLだけを相手に送ってください。
+        </p>
 
-  <form id="form">
-    <input id="text" placeholder="入力してください" required />
-    <button type="submit">送信</button>
-  </form>
-
-  <h2>出力</h2>
-  <ul id="list"></ul>
-
-  <script src="script.js"></script>
-</body>
+        <div class="link-list" aria-label="質問ページ一覧">
+          <a href="question-1.html">仕事・研究・学習・趣味</a>
+          <a href="question-2.html">知識・経験が生きた瞬間</a>
+          <a href="question-3.html">求める魅力・ロマン</a>
+          <a href="question-4.html">実施したいプログラム・プロジェクト</a>
+          <a href="question-5.html">これだからやめられない</a>
+        </div>
+      </section>
+    </main>
+  </body>
 </html>
