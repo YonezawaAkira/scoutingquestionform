@@ -9,15 +9,12 @@
   <body>
     <main class="page-shell page-shell--wide">
       <section class="intro-panel results-panel">
-        <p class="eyebrow">Formspree Submissions</p>
+        <p class="eyebrow">Google Sheets Submissions</p>
         <h1>回答一覧</h1>
 
         <form class="showall-controls" id="showall-form">
-          <label for="form-id">Formspree form ID</label>
-          <input id="form-id" name="formId" value="xzdwyypw" autocomplete="off" required>
-
-          <label for="api-key">API key</label>
-          <input id="api-key" name="apiKey" type="password" autocomplete="off" required>
+          <label for="gas-endpoint">Apps Script URL</label>
+          <input id="gas-endpoint" name="gasEndpoint" autocomplete="off" required>
 
           <button type="submit">一覧を読み込む</button>
           <p class="message" id="showall-message" role="status" aria-live="polite"></p>

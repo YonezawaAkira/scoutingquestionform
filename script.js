@@ -1,4 +1,4 @@
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/xzdwyypw";
+const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzAKUsanaSXQIY0RDqXHFEOeOCJqPdebrrnRiCJ5OWfohot_oMAEesIzcRbKA2hI5S-yA/exec";
 
 const form = document.querySelector(".question-card");
 
@@ -25,8 +25,8 @@ if (form) {
       submittedAt: new Date().toISOString()
     };
 
-    if (FORMSPREE_ENDPOINT.includes("your-form-id")) {
-      message.textContent = "Formspreeの送信先URLをscript.jsに設定してください。";
+    if (!GOOGLE_APPS_SCRIPT_URL) {
+      message.textContent = "Apps ScriptのウェブアプリURLをscript.jsに設定してください。";
       return;
     }
 
@@ -35,18 +35,11 @@ if (form) {
     message.textContent = "";
 
     try {
-      const response = await fetch(FORMSPREE_ENDPOINT, {
+      const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
         method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(submission)
+        mode: "no-cors",
+        body: new URLSearchParams(submission)
       });
-
-      if (!response.ok) {
-        throw new Error("送信に失敗しました。");
-      }
 
       form.reset();
       message.textContent = "回答を受け付けました。ありがとうございました。";

@@ -4,25 +4,12 @@ const list = document.querySelector("#submission-list");
 const summary = document.querySelector("#summary-row");
 const tabs = document.querySelector("#question-tabs");
 const tabButtons = Array.from(document.querySelectorAll("[data-question-filter]"));
+const endpointInput = document.querySelector("#gas-endpoint");
+
+const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzAKUsanaSXQIY0RDqXHFEOeOCJqPdebrrnRiCJ5OWfohot_oMAEesIzcRbKA2hI5S-yA/exec";
 
 let allSubmissions = [];
 let activeQuestionFilter = "all";
-
-const fieldAliases = {
-  answer: ["answer", "message"],
-  questionId: ["questionId", "question_id", "question-id"],
-  questionTitle: ["questionTitle", "question_title", "question-title"],
-  submittedAt: ["submittedAt", "submitted_at", "_date", "created_at"]
-};
-
-function pickField(submission, names) {
-  for (const name of names) {
-    if (submission[name] !== undefined && submission[name] !== null) {
-      return submission[name];
-    }
-  }
-  return "";
-}
 
 function formatDate(value) {
   if (!value) {
@@ -42,10 +29,10 @@ function formatDate(value) {
 
 function normalizeSubmission(submission) {
   return {
-    answer: pickField(submission, fieldAliases.answer),
-    questionId: pickField(submission, fieldAliases.questionId),
-    questionTitle: pickField(submission, fieldAliases.questionTitle),
-    submittedAt: pickField(submission, fieldAliases.submittedAt)
+    answer: submission.answer || "",
+    questionId: submission.questionId || "",
+    questionTitle: submission.questionTitle || "",
+    submittedAt: submission.submittedAt || submission.createdAt || ""
   };
 }
 
@@ -131,6 +118,68 @@ function renderSubmissions() {
   list.append(fragment);
 }
 
+function loadJsonp(endpoint) {
+  return new Promise((resolve, reject) => {
+    const callbackName = `handleSubmissions_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const script = document.createElement("script");
+    const url = new URL(endpoint);
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("GAS request timed out"));
+    }, 15000);
+
+    function cleanup() {
+      window.clearTimeout(timeout);
+      script.remove();
+      delete window[callbackName];
+    }
+
+    window[callbackName] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+
+    url.searchParams.set("callback", callbackName);
+    script.src = url.toString();
+    script.onerror = () => {
+      cleanup();
+      reject(new Error("GAS request failed"));
+    };
+
+    document.body.append(script);
+  });
+}
+
+async function loadSubmissions(endpoint) {
+  const button = showallForm.querySelector("button");
+
+  if (!endpoint) {
+    message.textContent = "Apps ScriptのウェブアプリURLを入力してください。";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "読み込み中...";
+  message.textContent = "";
+  summary.hidden = true;
+  tabs.hidden = true;
+  list.textContent = "";
+
+  try {
+    const data = await loadJsonp(endpoint);
+    allSubmissions = (Array.isArray(data.submissions) ? data.submissions : [])
+      .map(normalizeSubmission)
+      .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+    activeQuestionFilter = "all";
+    renderSubmissions();
+  } catch (error) {
+    message.textContent = "回答一覧を読み込めませんでした。Apps ScriptのURLと公開設定を確認してください。";
+  } finally {
+    button.disabled = false;
+    button.textContent = "一覧を読み込む";
+  }
+}
+
 tabs?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-question-filter]");
 
@@ -144,46 +193,10 @@ tabs?.addEventListener("click", (event) => {
 
 showallForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
-
-  const formData = new FormData(showallForm);
-  const formId = String(formData.get("formId") || "").trim();
-  const apiKey = String(formData.get("apiKey") || "").trim();
-  const button = showallForm.querySelector("button");
-
-  if (!formId || !apiKey) {
-    message.textContent = "Form IDとAPI keyを入力してください。";
-    return;
-  }
-
-  button.disabled = true;
-  button.textContent = "読み込み中...";
-  message.textContent = "";
-  summary.hidden = true;
-  tabs.hidden = true;
-  list.textContent = "";
-
-  try {
-    const response = await fetch(`https://formspree.io/api/0/forms/${encodeURIComponent(formId)}/submissions`, {
-      headers: {
-        "Accept": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Formspree API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    allSubmissions = (Array.isArray(data.submissions) ? data.submissions : [])
-      .map(normalizeSubmission)
-      .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
-    activeQuestionFilter = "all";
-    renderSubmissions();
-  } catch (error) {
-    message.textContent = "回答一覧を読み込めませんでした。Form ID、API key、Formspreeのプラン/API権限を確認してください。";
-  } finally {
-    button.disabled = false;
-    button.textContent = "一覧を読み込む";
-  }
+  await loadSubmissions(endpointInput.value.trim());
 });
+
+if (GOOGLE_APPS_SCRIPT_URL) {
+  endpointInput.value = GOOGLE_APPS_SCRIPT_URL;
+  loadSubmissions(GOOGLE_APPS_SCRIPT_URL);
+}

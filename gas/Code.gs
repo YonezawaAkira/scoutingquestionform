@@ -1,0 +1,92 @@
+const SPREADSHEET_ID = "1qNSA8UjU9jD_dIrX1cilCw5Aa1PCIlAPfHgspbyB8AE";
+const SHEET_NAME = "responses";
+const HEADERS = ["submittedAt", "questionId", "questionTitle", "answer"];
+
+function doPost(e) {
+  const sheet = getSheet();
+  const params = e.parameter || {};
+  const submittedAt = params.submittedAt || new Date().toISOString();
+  const questionId = String(params.questionId || "").trim();
+  const questionTitle = String(params.questionTitle || "").trim();
+  const answer = String(params.answer || "").trim();
+
+  if (!questionId || !answer) {
+    return jsonResponse({ ok: false, error: "questionId and answer are required" });
+  }
+
+  sheet.appendRow([submittedAt, questionId, questionTitle, answer]);
+  return jsonResponse({ ok: true });
+}
+
+function doGet(e) {
+  const callback = e.parameter && e.parameter.callback;
+  const submissions = readSubmissions();
+  const payload = JSON.stringify({ ok: true, submissions });
+
+  if (callback) {
+    return ContentService
+      .createTextOutput(`${callback}(${payload});`)
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+
+  return ContentService
+    .createTextOutput(payload)
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getSheet() {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = spreadsheet.getSheetByName(SHEET_NAME);
+
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(SHEET_NAME);
+  }
+
+  ensureHeaders(sheet);
+  return sheet;
+}
+
+function ensureHeaders(sheet) {
+  const headerRange = sheet.getRange(1, 1, 1, HEADERS.length);
+  const currentHeaders = headerRange.getValues()[0];
+  const needsHeaders = HEADERS.some((header, index) => currentHeaders[index] !== header);
+
+  if (needsHeaders) {
+    headerRange.setValues([HEADERS]);
+    sheet.setFrozenRows(1);
+  }
+}
+
+function readSubmissions() {
+  const sheet = getSheet();
+  const lastRow = sheet.getLastRow();
+
+  if (lastRow < 2) {
+    return [];
+  }
+
+  return sheet
+    .getRange(2, 1, lastRow - 1, HEADERS.length)
+    .getValues()
+    .filter((row) => row.some((value) => value !== ""))
+    .map((row) => ({
+      submittedAt: formatDateValue(row[0]),
+      questionId: row[1],
+      questionTitle: row[2],
+      answer: row[3]
+    }));
+}
+
+function formatDateValue(value) {
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  return value;
+}
+
+function jsonResponse(payload) {
+  return ContentService
+    .createTextOutput(JSON.stringify(payload))
+    .setMimeType(ContentService.MimeType.JSON);
+}
