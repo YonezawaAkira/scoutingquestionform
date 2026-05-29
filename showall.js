@@ -144,7 +144,7 @@ function loadJsonp(endpoint) {
     script.src = url.toString();
     script.onerror = () => {
       cleanup();
-      reject(new Error("GAS request failed"));
+      reject(new Error(`GAS request failed: ${url.toString()}`));
     };
 
     document.body.append(script);
@@ -168,6 +168,10 @@ async function loadSubmissions(endpoint) {
 
   try {
     const data = await loadJsonp(endpoint);
+    if (!data || data.ok === false) {
+      throw new Error(data?.error || "GAS returned an error response");
+    }
+
     allSubmissions = (Array.isArray(data.submissions) ? data.submissions : [])
       .map(normalizeSubmission)
       .filter((submission) => allowedQuestionIds.has(submission.questionId))
@@ -175,7 +179,8 @@ async function loadSubmissions(endpoint) {
     activeQuestionFilter = "all";
     renderSubmissions();
   } catch (error) {
-    message.textContent = "回答一覧を読み込めませんでした。Apps ScriptのURLと公開設定を確認してください。";
+    console.error(error);
+    message.textContent = `回答一覧を読み込めませんでした。${error.message}`;
   } finally {
     button.disabled = false;
     button.textContent = "一覧を読み込む";
