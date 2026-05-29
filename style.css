@@ -176,6 +176,24 @@ button:hover {
   font-weight: 700;
 }
 
+.other-questions-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 12px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--accent-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.other-questions-link:hover {
+  background: rgba(29, 107, 79, 0.08);
+}
+
 .showall-controls {
   display: grid;
   gap: 10px;
@@ -330,6 +348,33 @@ button:hover {
   margin: 0;
   color: var(--ink);
   white-space: pre-wrap;
+}
+
+.admin-login {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-login label {
+  margin: 8px 0 0;
+}
+
+.danger-button {
+  width: auto;
+  min-height: 42px;
+  margin-top: 14px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #9f2a2a;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.danger-button:hover {
+  background: #7f1e1e;
 }
 
 .pagination {

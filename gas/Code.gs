@@ -1,10 +1,17 @@
 const SPREADSHEET_ID = "1qNSA8UjU9jD_dIrX1cilCw5Aa1PCIlAPfHgspbyB8AE";
 const SHEET_NAME = "responses";
 const HEADERS = ["submittedAt", "questionId", "questionTitle", "answer"];
+const ADMIN_ID = "zenkokutaikai_mitoha";
+const ADMIN_PASSWORD = "iyasaka";
 
 function doPost(e) {
   const sheet = getSheet();
   const params = e.parameter || {};
+
+  if (params.action === "deleteRow") {
+    return deleteRowResponse(sheet, params);
+  }
+
   const submittedAt = params.submittedAt || new Date().toISOString();
   const questionId = String(params.questionId || "").trim();
   const questionTitle = String(params.questionTitle || "").trim();
@@ -15,6 +22,30 @@ function doPost(e) {
   }
 
   sheet.appendRow([submittedAt, questionId, questionTitle, answer]);
+  return jsonResponse({ ok: true });
+}
+
+function deleteRowResponse(sheet, params) {
+  if (params.adminId !== ADMIN_ID || params.adminPassword !== ADMIN_PASSWORD) {
+    return jsonResponse({ ok: false, error: "Unauthorized" });
+  }
+
+  const rowNumber = Number(params.rowNumber);
+  const lastRow = sheet.getLastRow();
+
+  if (!Number.isInteger(rowNumber) || rowNumber < 2 || rowNumber > lastRow) {
+    return jsonResponse({ ok: false, error: "Invalid row number" });
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    sheet.deleteRow(rowNumber);
+  } finally {
+    lock.releaseLock();
+  }
+
   return jsonResponse({ ok: true });
 }
 
