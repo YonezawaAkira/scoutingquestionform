@@ -11,25 +11,8 @@
       <section class="intro-panel results-panel">
         <p class="eyebrow">Google Sheets Submissions</p>
         <h1>回答一覧</h1>
-
-        <form class="showall-controls" id="showall-form">
-          <label for="gas-endpoint">Apps Script URL</label>
-          <input id="gas-endpoint" name="gasEndpoint" autocomplete="off" required>
-
-          <button type="submit">一覧を読み込む</button>
-          <p class="message" id="showall-message" role="status" aria-live="polite"></p>
-        </form>
-
-        <nav class="question-tabs" id="question-tabs" aria-label="質問ごとの回答" hidden>
-          <button class="tab-button is-active" type="button" data-question-filter="all">すべて <span>0</span></button>
-          <button class="tab-button" type="button" data-question-filter="question-1">1 <span>0</span></button>
-          <button class="tab-button" type="button" data-question-filter="question-2">2 <span>0</span></button>
-          <button class="tab-button" type="button" data-question-filter="question-3">3 <span>0</span></button>
-          <button class="tab-button" type="button" data-question-filter="question-4">4 <span>0</span></button>
-        </nav>
-
-        <div class="summary-row" id="summary-row" hidden></div>
-        <div class="submission-list" id="submission-list"></div>
+        <p class="message" id="showall-message" role="status" aria-live="polite"></p>
+        <div class="question-link-list" id="question-link-list"></div>
       </section>
     </main>
     <script src="showall.js"></script>

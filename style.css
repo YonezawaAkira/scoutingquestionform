@@ -167,6 +167,47 @@ button:hover {
   line-height: 1.7;
 }
 
+.question-link-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.question-link-item {
+  display: grid;
+  grid-template-columns: minmax(48px, auto) 1fr auto;
+  gap: 14px;
+  align-items: center;
+  min-height: 58px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.question-link-item:hover {
+  border-color: var(--accent);
+}
+
+.question-link-label {
+  color: var(--accent-dark);
+  font-weight: 800;
+}
+
+.question-link-title {
+  color: var(--ink);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.question-link-count {
+  color: var(--muted);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .question-tabs {
   display: flex;
   flex-wrap: wrap;
