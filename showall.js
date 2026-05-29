@@ -151,6 +151,60 @@ function loadJsonp(endpoint) {
   });
 }
 
+function loadIframe(endpoint) {
+  return new Promise((resolve, reject) => {
+    const requestId = `submissions_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const iframe = document.createElement("iframe");
+    const url = new URL(endpoint);
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("GAS iframe request timed out"));
+    }, 15000);
+
+    function cleanup() {
+      window.clearTimeout(timeout);
+      window.removeEventListener("message", handleMessage);
+      iframe.remove();
+    }
+
+    function handleMessage(event) {
+      const payload = event.data;
+
+      if (
+        !payload ||
+        payload.type !== "scoutingquestionform:submissions" ||
+        payload.requestId !== requestId
+      ) {
+        return;
+      }
+
+      cleanup();
+      resolve(payload.data);
+    }
+
+    window.addEventListener("message", handleMessage);
+    url.searchParams.set("transport", "iframe");
+    url.searchParams.set("requestId", requestId);
+    iframe.hidden = true;
+    iframe.src = url.toString();
+    iframe.onerror = () => {
+      cleanup();
+      reject(new Error("GAS iframe request failed"));
+    };
+
+    document.body.append(iframe);
+  });
+}
+
+async function loadFromGas(endpoint) {
+  try {
+    return await loadJsonp(endpoint);
+  } catch (jsonpError) {
+    console.warn("JSONP loading failed. Trying iframe fallback.", jsonpError);
+    return loadIframe(endpoint);
+  }
+}
+
 async function loadSubmissions(endpoint) {
   const button = showallForm.querySelector("button");
 
@@ -167,7 +221,7 @@ async function loadSubmissions(endpoint) {
   list.textContent = "";
 
   try {
-    const data = await loadJsonp(endpoint);
+    const data = await loadFromGas(endpoint);
     if (!data || data.ok === false) {
       throw new Error(data?.error || "GAS returned an error response");
     }

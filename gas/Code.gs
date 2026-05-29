@@ -20,8 +20,15 @@ function doPost(e) {
 
 function doGet(e) {
   const callback = e.parameter && e.parameter.callback;
+  const transport = e.parameter && e.parameter.transport;
+  const requestId = e.parameter && e.parameter.requestId;
   const submissions = readSubmissions();
-  const payload = JSON.stringify({ ok: true, submissions });
+  const response = { ok: true, submissions };
+  const payload = JSON.stringify(response);
+
+  if (transport === "iframe") {
+    return iframeResponse(response, requestId || "");
+  }
 
   if (callback) {
     return ContentService
@@ -32,6 +39,28 @@ function doGet(e) {
   return ContentService
     .createTextOutput(payload)
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function iframeResponse(payload, requestId) {
+  const safePayload = JSON.stringify(payload).replace(/</g, "\\u003c");
+  const safeRequestId = JSON.stringify(requestId);
+  const html = `
+<!doctype html>
+<html>
+  <body>
+    <script>
+      window.parent.postMessage({
+        type: "scoutingquestionform:submissions",
+        requestId: ${safeRequestId},
+        data: ${safePayload}
+      }, "*");
+    </script>
+  </body>
+</html>`;
+
+  return HtmlService
+    .createHtmlOutput(html)
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 function getSheet() {
