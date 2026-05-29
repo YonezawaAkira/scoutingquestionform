@@ -1,4 +1,6 @@
 const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzAKUsanaSXQIY0RDqXHFEOeOCJqPdebrrnRiCJ5OWfohot_oMAEesIzcRbKA2hI5S-yA/exec";
+const GOOGLE_SHEET_ID = "1qNSA8UjU9jD_dIrX1cilCw5Aa1PCIlAPfHgspbyB8AE";
+const GOOGLE_SHEET_NAME = "responses";
 
 const showallForm = document.querySelector("#showall-form");
 const message = document.querySelector("#showall-message");
@@ -151,6 +153,54 @@ function loadJsonp(endpoint) {
   });
 }
 
+function parseGoogleSheetResponse(text) {
+  const prefix = "google.visualization.Query.setResponse(";
+  const start = text.indexOf(prefix);
+  const end = text.lastIndexOf(");");
+
+  if (start === -1 || end === -1) {
+    throw new Error("Google Sheets response format was not recognized");
+  }
+
+  const json = text.slice(start + prefix.length, end);
+  const data = JSON.parse(json);
+
+  if (data.status !== "ok") {
+    throw new Error(`Google Sheets returned ${data.status || "an error"}`);
+  }
+
+  const rows = data.table?.rows || [];
+  const values = rows.map((row) => (row.c || []).map((cell) => cell?.v ?? ""));
+  const bodyRows = values[0]?.[0] === "submittedAt" ? values.slice(1) : values;
+
+  return {
+    ok: true,
+    submissions: bodyRows
+      .filter((row) => row.some((value) => value !== ""))
+      .map((row) => ({
+        submittedAt: row[0] || "",
+        questionId: row[1] || "",
+        questionTitle: row[2] || "",
+        answer: row[3] || ""
+      }))
+  };
+}
+
+async function loadFromSheet() {
+  const url = new URL(`https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq`);
+  url.searchParams.set("tqx", "out:json");
+  url.searchParams.set("sheet", GOOGLE_SHEET_NAME);
+  url.searchParams.set("cacheBust", String(Date.now()));
+
+  const response = await fetch(url.toString());
+
+  if (!response.ok) {
+    throw new Error(`Google Sheets request failed: ${response.status}`);
+  }
+
+  return parseGoogleSheetResponse(await response.text());
+}
+
 function loadIframe(endpoint) {
   return new Promise((resolve, reject) => {
     const requestId = `submissions_${Date.now()}_${Math.random().toString(36).slice(2)}`;
@@ -197,6 +247,12 @@ function loadIframe(endpoint) {
 }
 
 async function loadFromGas(endpoint) {
+  try {
+    return await loadFromSheet();
+  } catch (sheetError) {
+    console.warn("Google Sheets loading failed. Trying Apps Script JSONP.", sheetError);
+  }
+
   try {
     return await loadJsonp(endpoint);
   } catch (jsonpError) {
