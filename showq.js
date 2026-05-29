@@ -3,6 +3,7 @@ const GOOGLE_SHEET_NAME = "responses";
 const PER_PAGE = 10;
 
 const panel = document.querySelector("[data-question-id]");
+const questionOverview = document.querySelector("#question-overview");
 const message = document.querySelector("#showq-message");
 const summary = document.querySelector("#summary-row");
 const list = document.querySelector("#submission-list");
@@ -90,24 +91,24 @@ async function loadSubmissions() {
   return parseGoogleSheetResponse(await response.text());
 }
 
-function appendSubmission(item) {
+function appendSubmission(item, answerNumber) {
   const card = document.createElement("article");
   const header = document.createElement("header");
   const date = document.createElement("span");
-  const question = document.createElement("p");
+  const label = document.createElement("p");
   const answer = document.createElement("p");
 
   card.className = "submission-card";
   date.className = "submission-date";
-  question.className = "submission-question";
+  label.className = "submission-question";
   answer.className = "submission-answer";
 
   date.textContent = formatDate(item.submittedAt) || "日時なし";
-  question.textContent = item.questionTitle || "質問文なし";
+  label.textContent = `回答${answerNumber}`;
   answer.textContent = item.answer || "回答なし";
 
   header.append(date);
-  card.append(header, question, answer);
+  card.append(header, label, answer);
   list.append(card);
 }
 
@@ -136,7 +137,9 @@ function render(submissions) {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const currentPage = Math.min(getCurrentPage(), totalPages);
   const paged = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+  const questionTitle = filtered.find((submission) => submission.questionTitle)?.questionTitle || "質問文なし";
 
+  questionOverview.textContent = questionTitle;
   summary.hidden = false;
   summary.textContent = `${questionLabel}: ${filtered.length}件中 ${paged.length}件を表示しています。`;
   list.textContent = "";
@@ -151,8 +154,8 @@ function render(submissions) {
     empty.append(text);
     list.append(empty);
   } else {
-    for (const item of paged) {
-      appendSubmission(item);
+    for (const [index, item] of paged.entries()) {
+      appendSubmission(item, (currentPage - 1) * PER_PAGE + index + 1);
     }
   }
 

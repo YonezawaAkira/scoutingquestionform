@@ -159,6 +159,14 @@ button:hover {
   font-weight: 700;
 }
 
+.question-overview {
+  margin: 0 0 18px;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
 .question-tabs {
   display: flex;
   flex-wrap: wrap;
