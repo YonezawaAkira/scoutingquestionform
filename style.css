@@ -250,6 +250,47 @@ button:hover {
   white-space: pre-wrap;
 }
 
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.pagination[hidden] {
+  display: none;
+}
+
+.pagination-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--accent-dark);
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.pagination-button:hover {
+  border-color: var(--accent);
+}
+
+.pagination-button.is-disabled {
+  color: var(--line);
+  cursor: default;
+}
+
+.pagination-status {
+  color: var(--muted);
+  font-weight: 700;
+}
+
 .link-list {
   display: grid;
   gap: 12px;
