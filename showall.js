@@ -1,3 +1,5 @@
+const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzAKUsanaSXQIY0RDqXHFEOeOCJqPdebrrnRiCJ5OWfohot_oMAEesIzcRbKA2hI5S-yA/exec";
+
 const showallForm = document.querySelector("#showall-form");
 const message = document.querySelector("#showall-message");
 const list = document.querySelector("#submission-list");
@@ -5,8 +7,7 @@ const summary = document.querySelector("#summary-row");
 const tabs = document.querySelector("#question-tabs");
 const tabButtons = Array.from(document.querySelectorAll("[data-question-filter]"));
 const endpointInput = document.querySelector("#gas-endpoint");
-
-const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzAKUsanaSXQIY0RDqXHFEOeOCJqPdebrrnRiCJ5OWfohot_oMAEesIzcRbKA2hI5S-yA/exec";
+const allowedQuestionIds = new Set(["question-1", "question-2", "question-3", "question-4"]);
 
 let allSubmissions = [];
 let activeQuestionFilter = "all";
@@ -169,6 +170,7 @@ async function loadSubmissions(endpoint) {
     const data = await loadJsonp(endpoint);
     allSubmissions = (Array.isArray(data.submissions) ? data.submissions : [])
       .map(normalizeSubmission)
+      .filter((submission) => allowedQuestionIds.has(submission.questionId))
       .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
     activeQuestionFilter = "all";
     renderSubmissions();
