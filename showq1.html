@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
+    <button class="menu-toggle" type="button" aria-controls="site-menu" aria-expanded="false" aria-label="メニューを開く">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <nav class="site-menu" id="site-menu" hidden>
+      <a href="index.html">企画概要</a>
+      <a href="showq1.html">Q1</a>
+      <a href="showq2.html">Q2</a>
+      <a href="showq3.html">Q3</a>
+      <a href="showq4.html">Q4</a>
+    </nav>
     <main class="page-shell page-shell--wide">
       <section class="intro-panel results-panel" data-question-id="question-1" data-question-label="Q1">
         <p class="eyebrow">Google Sheets Submissions</p>
@@ -18,6 +30,7 @@
         <nav class="pagination" id="pagination" aria-label="回答一覧のページ送り" hidden></nav>
       </section>
     </main>
+    <script src="menu.js"></script>
     <script src="showq.js"></script>
   </body>
 </html>
