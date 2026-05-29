@@ -91,24 +91,21 @@ async function loadSubmissions() {
   return parseGoogleSheetResponse(await response.text());
 }
 
-function appendSubmission(item, answerNumber) {
+function appendSubmission(item) {
   const card = document.createElement("article");
   const header = document.createElement("header");
   const date = document.createElement("span");
-  const label = document.createElement("p");
   const answer = document.createElement("p");
 
   card.className = "submission-card";
   date.className = "submission-date";
-  label.className = "submission-question";
   answer.className = "submission-answer";
 
   date.textContent = formatDate(item.submittedAt) || "日時なし";
-  label.textContent = `回答${answerNumber}`;
   answer.textContent = item.answer || "回答なし";
 
   header.append(date);
-  card.append(header, label, answer);
+  card.append(header, answer);
   list.append(card);
 }
 
@@ -154,8 +151,8 @@ function render(submissions) {
     empty.append(text);
     list.append(empty);
   } else {
-    for (const [index, item] of paged.entries()) {
-      appendSubmission(item, (currentPage - 1) * PER_PAGE + index + 1);
+    for (const item of paged) {
+      appendSubmission(item);
     }
   }
 
