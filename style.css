@@ -85,6 +85,39 @@ p {
   line-height: 1.8;
 }
 
+.overview-list {
+  display: grid;
+  gap: 18px;
+  margin: 0;
+}
+
+.overview-list div {
+  display: grid;
+  gap: 6px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.overview-list div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.overview-list dt {
+  color: var(--accent-dark);
+  font-weight: 800;
+}
+
+.overview-list dd {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.8;
+}
+
+.overview-list a {
+  color: var(--accent-dark);
+}
+
 label {
   display: block;
   margin: 20px 0 8px;
